@@ -1,16 +1,26 @@
 var n = NPos3d,
-	scene = new n.Scene(),
-	globalSlideContentOffScreenFactor = 0;
+	scene = new n.Scene({
+		globalCompositeOperation: 'lighter'
+	}),
+	globalSlideContentOffScreenFactor = 0,
+	particleSpacingMod = 0, 
+	particleSpacingModMax = 24,
+	particleAngleMod = 0;
 
 var BlackHoleParticle = function(args) {
 	var t = this, type = 'BlackHoleParticle', n = NPos3d, m = n.Maths;
 	if(t.type !== type){throw type + ' must be invoked using the `new` keyword.';}
 	args = args || {};
 	n.blessWith3DBase(t, args);
-	t.angle = Math.random() * tau;
-	t.speed = (Math.random() * 2) + 2;
+	t.angle = (particleAngleMod / particleSpacingModMax) * tau;
+	t.speed = 1 + (4 * (particleSpacingMod / particleSpacingModMax));
 	t.vel = [0, 0, 0];
-	t.curl = Math.random() * deg;
+	t.curl = deg * ((particleSpacingMod / particleSpacingModMax) + 1);
+	particleSpacingMod += 1;
+	if(particleSpacingMod >= particleSpacingModMax) {
+		particleAngleMod += 1;
+	}
+	particleSpacingMod %= particleSpacingModMax;
 	t.curlVelocity();
 	scene.add(t);
 };
@@ -19,12 +29,13 @@ BlackHoleParticle.prototype = {
 	type: 'BlackHoleParticle',
 	shape: {
 		points: [
-			[0, 0, 0, '#f00'], //red, tip
-			[-10, 0, 0, '#fff'] //white, tail
+			[0, 0, 0, '#920'], //red, tip
+			[-10, 0, 0, '#639'] //white, tail
 		],
 		lines: [
 			[0, 1]
-		]
+		],
+		color: '#936'
 	},
 	renderStyle: 'both',
 	curlVelocity: function() {
@@ -45,10 +56,9 @@ BlackHoleParticle.prototype = {
 	}
 };
 
-
 var spawnBlackHoleParticles = function(num) {
 	var i, item;
-	for(i = 0; i < num; i += 1){
+	for(i = 0; i < num; i += 1) {
 		item = new BlackHoleParticle({
 			// pos: [
 			// 	((Math.random() * 2) - 1) * 500,
@@ -59,6 +69,6 @@ var spawnBlackHoleParticles = function(num) {
 	}
 };
 
-spawnBlackHoleParticles(100);
+spawnBlackHoleParticles(particleSpacingModMax * particleSpacingModMax);
 
 
